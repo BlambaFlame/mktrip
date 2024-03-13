@@ -24,8 +24,9 @@ class _MapPageState extends State<MapPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Текущее местоположение'),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _fetchCurrentLocation,
+        child: const Icon(Icons.pin_drop),
       ),
       body: YandexMap(
         onMapCreated: (controller) {
@@ -67,7 +68,7 @@ class _MapPageState extends State<MapPage> {
             latitude: appLatLong.lat,
             longitude: appLatLong.long,
           ),
-          zoom: 12,
+          zoom: 15,
         ),
       ),
     );
