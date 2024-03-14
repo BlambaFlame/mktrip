@@ -19,7 +19,7 @@ class _MyHomePage extends State<MyHomePage> {
       child: SizedBox.expand(
         child: Center(
           child: Text(
-            'Home page',
+            'MKTrip',
             style: theme.textTheme.titleLarge,
           ),
         ),
