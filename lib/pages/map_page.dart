@@ -4,7 +4,6 @@ import 'package:mktrip/map/domain/app_lat_long.dart';
 import 'package:mktrip/map/domain/location_service.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
 
-
 class MapPage extends StatefulWidget {
   const MapPage({key}) : super(key: key);
 
@@ -14,8 +13,6 @@ class MapPage extends StatefulWidget {
 
 class _MapPageState extends State<MapPage> {
   final Completer<YandexMapController> mapControllerCompleter = Completer();
-  late final YandexMapController _mapController;
-  CameraPosition? _userLocation;
 
   @override
   void initState() {
@@ -32,28 +29,15 @@ class _MapPageState extends State<MapPage> {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.miniStartFloat,
       body: YandexMap(
-        onUserLocationAdded: (view) async{
-          _userLocation = await _mapController.getUserCameraPosition();
-          // если местоположение найдено, центрируем карту относительно этой точки
-          if (_userLocation != null) {
-            await _mapController.moveCamera(
-              CameraUpdate.newCameraPosition(
-                _userLocation!.copyWith(zoom: 10),
-              ),
-              animation: const MapAnimation(
-                type: MapAnimationType.linear,
-                duration: 0.3,
-              ),
-            );
-          }
+        onUserLocationAdded: (view) async {
+          _fetchCurrentLocation();
           return view.copyWith(
-            pin: view.pin.copyWith(
+            arrow: view.arrow.copyWith(
               opacity: 1,
             ),
           );
         },
-        onMapCreated: (controller) {
-          _mapController = controller;
+        onMapCreated: (controller) async {
           mapControllerCompleter.complete(controller);
         },
       ),
@@ -69,7 +53,7 @@ class _MapPageState extends State<MapPage> {
 
   Future<void> _fetchCurrentLocation() async {
     AppLatLong location;
-    const defLocation = MoscowLocation();
+    const defLocation = KazanLocation();
     try {
       location = await LocationService().getCurrentLocation();
     } catch (_) {
@@ -82,6 +66,7 @@ class _MapPageState extends State<MapPage> {
   Future<void> _moveToCurrentLocation(AppLatLong appLatLong) async {
     final controller = await mapControllerCompleter.future;
 
+    controller.toggleUserLayer(visible: true);
     // Move the camera to the user's current location
     controller.moveCamera(
       animation: const MapAnimation(type: MapAnimationType.linear, duration: 1),

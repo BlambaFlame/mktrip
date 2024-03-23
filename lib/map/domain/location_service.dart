@@ -4,7 +4,7 @@ import 'package:mktrip/map/domain/app_location.dart';
 
 
 class LocationService implements AppLocation {
-  final defLocation = const MoscowLocation();
+  final defLocation = const KazanLocation();
 
   @override
   Future<AppLatLong> getCurrentLocation() async {
