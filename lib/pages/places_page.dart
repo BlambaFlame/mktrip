@@ -11,6 +11,7 @@ class PlacesPage extends StatefulWidget {
 
 class _PlacesPageState extends State<PlacesPage> {
   List<Place> places = [];
+  bool isButtonActive = false;
 
   @override
   void initState() {
@@ -47,33 +48,68 @@ class _PlacesPageState extends State<PlacesPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: ListView.builder(
-        itemCount: places.length,
-        itemBuilder: (BuildContext context, int index) {
-          return Card(
-            child: ListTile(
-              leading: Checkbox(value: places[index].selected,
-                onChanged: (bool? value) {
-                  setState(() {
-                    places[index].selected = value ?? false;
-                  });
-                },
+    return Scaffold(
+      body: Stack(
+        children: [
+          CustomScrollView(
+            slivers: <Widget>[
+              SliverPadding(
+                padding: const EdgeInsets.all(8.0),
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                        (BuildContext context, int index) {
+                      return Card(
+                        child: ListTile(
+                          leading: Checkbox(
+                            value: places[index].selected,
+                            onChanged: (bool? value) {
+                              setState(() {
+                                places[index].selected = value ?? false;
+                                isButtonActive = value ?? false;
+                              });
+                            },
+                          ),
+                          title: Column(
+                            children: [
+                              Text(places[index].title),
+                            ],
+                          ),
+                          subtitle: Align(
+                            alignment: Alignment.center,
+                            child: Text(
+                              '${places[index].latitude}, ${places[index].longitude}',
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                    childCount: places.length,
+                  ),
                 ),
-              title: Column(
-                children: [
-                  Text(places[index].title),
-                ],
               ),
-              subtitle: Align(alignment: Alignment.center,
-               child: Text(
-                '${places[index].latitude}, ${places[index].longitude}',
-                  textAlign: TextAlign.center,),
+            ],
+          ),
+          Positioned(
+            bottom: 0,
+            right: 0,
+            child: Padding(
+              padding: const EdgeInsets.all(2.0),
+              child: ElevatedButton(
+                onPressed: isButtonActive ? () {} : null,
+                style: ButtonStyle(
+                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(70.0), // Указываем радиус закругления
+                    ),
+                  ),
+                ),
+                child: Icon(Icons.pin_drop),
+
+              ),
             ),
-            ),
-          );
-        },
+          ),
+        ],
       ),
     );
   }

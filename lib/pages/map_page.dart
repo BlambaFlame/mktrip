@@ -6,7 +6,7 @@ import 'package:yandex_mapkit/yandex_mapkit.dart';
 
 
 class MapPage extends StatefulWidget {
-  const MapPage({super.key});
+  const MapPage({key}) : super(key: key);
 
   @override
   _MapPageState createState() => _MapPageState();
@@ -14,6 +14,8 @@ class MapPage extends StatefulWidget {
 
 class _MapPageState extends State<MapPage> {
   final Completer<YandexMapController> mapControllerCompleter = Completer();
+  late final YandexMapController _mapController;
+  CameraPosition? _userLocation;
 
   @override
   void initState() {
@@ -30,7 +32,28 @@ class _MapPageState extends State<MapPage> {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.miniStartFloat,
       body: YandexMap(
+        onUserLocationAdded: (view) async{
+          _userLocation = await _mapController.getUserCameraPosition();
+          // если местоположение найдено, центрируем карту относительно этой точки
+          if (_userLocation != null) {
+            await _mapController.moveCamera(
+              CameraUpdate.newCameraPosition(
+                _userLocation!.copyWith(zoom: 10),
+              ),
+              animation: const MapAnimation(
+                type: MapAnimationType.linear,
+                duration: 0.3,
+              ),
+            );
+          }
+          return view.copyWith(
+            pin: view.pin.copyWith(
+              opacity: 1,
+            ),
+          );
+        },
         onMapCreated: (controller) {
+          _mapController = controller;
           mapControllerCompleter.complete(controller);
         },
       ),
@@ -52,6 +75,7 @@ class _MapPageState extends State<MapPage> {
     } catch (_) {
       location = defLocation;
     }
+
     _moveToCurrentLocation(location);
   }
 

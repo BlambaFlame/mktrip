@@ -4,7 +4,7 @@ import 'package:mktrip/pages/map_page.dart';
 import 'package:mktrip/pages/places_page.dart';
 
 class MainPages extends StatefulWidget {
-  const MainPages({super.key});
+  const MainPages({Key ?key});
 
   @override
   State<MainPages> createState() => _MainPagesState();
@@ -26,22 +26,22 @@ class _MainPagesState extends State<MainPages> {
             currentPageIndex = index;
           });
         },
-        indicatorColor: Colors.orange,
+        indicatorColor: Colors.deepPurple,
         selectedIndex: currentPageIndex,
         destinations: const <Widget>[
           NavigationDestination(
-            selectedIcon: Icon(Icons.home),
-            icon: Icon(Icons.home_outlined),
+            selectedIcon: Icon(Icons.home, color: Colors.white),
+            icon: Icon(Icons.home),
             label: 'Home',
           ),
           NavigationDestination(
-            selectedIcon: Icon(Icons.place),
-            icon: Icon(Icons.place_outlined),
+            selectedIcon: Icon(Icons.place, color: Colors.white),
+            icon: Icon(Icons.place),
             label: 'Places',
           ),
           NavigationDestination(
-            selectedIcon: Icon(Icons.map),
-            icon: Icon(Icons.map_outlined),
+            selectedIcon: Icon(Icons.map, color: Colors.white ),
+            icon: Icon(Icons.map),
             label: 'Map',
           ),
         ],

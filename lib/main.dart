@@ -12,7 +12,7 @@ class MKTripApp extends StatelessWidget {
       title: 'MKTrip',
       theme: ThemeData(
         scaffoldBackgroundColor: Colors.white,
-        primarySwatch: Colors.orange
+        primarySwatch: Colors.deepPurple
       ),
       home: const MainPages(),
     );
