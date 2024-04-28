@@ -11,13 +11,10 @@ class MKTripApp extends StatelessWidget {
     return MaterialApp(
       title: 'MKTrip',
       theme: ThemeData(
-        scaffoldBackgroundColor: Colors.white,
-        primarySwatch: Colors.deepPurple
-      ),
+          useMaterial3: false,
+          scaffoldBackgroundColor: Colors.white,
+          primarySwatch: Colors.deepPurple),
       home: const MainPages(),
     );
   }
 }
-
-
-

@@ -1,80 +1,115 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:mktrip/map/domain/app_lat_long.dart';
-import 'package:mktrip/map/domain/location_service.dart';
-import 'package:yandex_mapkit/yandex_mapkit.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:mktrip/list/place.dart';
+
 
 class MapPage extends StatefulWidget {
-  const MapPage({key}) : super(key: key);
+  MapPage(this.selectedPlaces, {Key? key}) : super(key: key);
+  final List<Place> selectedPlaces;
+
 
   @override
   _MapPageState createState() => _MapPageState();
 }
 
 class _MapPageState extends State<MapPage> {
-  final Completer<YandexMapController> mapControllerCompleter = Completer();
-
+  final mapController = MapController();
   @override
   void initState() {
     super.initState();
-    _initPermission();
   }
 
   @override
   Widget build(BuildContext context) {
+    List<Marker> markers = [];
+    int markerNumber = 1;
+
+    for (Place place in widget.selectedPlaces) {
+      double latitude = 0.0;
+      double longitude = 0.0;
+
+      markers.add(
+        Marker(
+          width: 22.5,
+          height: 22.5,
+          point: LatLng(place.latitude, place.longitude),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.deepPurple,
+              borderRadius: BorderRadius.circular(20.0),
+            ),
+            child: Center(
+              child: Text(
+                '$markerNumber',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16.0,
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      markerNumber++;
+    }
+
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: _fetchCurrentLocation,
-        child: const Icon(Icons.my_location),
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+              onPressed: () async{
+                 final position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+                 mapController.move(LatLng(position.latitude, position.longitude), 14);
+              },
+            child: const Icon(Icons.my_location),
+          ),
+          SizedBox(height: 8,),
+          widget.selectedPlaces.length >0? FloatingActionButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: const Icon(Icons.arrow_back),
+          ):SizedBox.shrink()
+        ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.miniStartFloat,
-      body: YandexMap(
-        onUserLocationAdded: (view) async {
-          _fetchCurrentLocation();
-          return view.copyWith(
-            arrow: view.arrow.copyWith(
-              opacity: 1,
+      body: FlutterMap(
+        mapController: mapController,
+        options: MapOptions(),
+        children: [
+          TileLayer(
+            urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+            maxZoom: 25,
+          ),
+          MarkerLayer(
+            markers: markers,
+          ),
+
+          CurrentLocationLayer(
+            alignPositionOnUpdate : AlignOnUpdate.never,
+            alignDirectionOnUpdate: AlignOnUpdate.never,
+            style: LocationMarkerStyle(
+              marker: const DefaultLocationMarker(
+                color: Colors. deepPurple,
+                child: Icon(
+                  Icons.navigation,
+                  color: Colors.white,
+                ),
+              ),
+              markerSize: const Size.square(33),
+              accuracyCircleColor: Colors.purple.withOpacity(0.1),
+              headingSectorColor: Colors.purple.withOpacity(0.8),
+              headingSectorRadius: 60,
+              markerDirection: MarkerDirection.heading,
             ),
-          );
-        },
-        onMapCreated: (controller) async {
-          mapControllerCompleter.complete(controller);
-        },
-      ),
-    );
-  }
-
-  Future<void> _initPermission() async {
-    if (!await LocationService().checkPermission()) {
-      await LocationService().requestPermission();
-    }
-    await _fetchCurrentLocation();
-  }
-
-  Future<void> _fetchCurrentLocation() async {
-    AppLatLong location;
-    const defLocation = KazanLocation();
-    try {
-      location = await LocationService().getCurrentLocation();
-    } catch (_) {
-      location = defLocation;
-    }
-
-    _moveToCurrentLocation(location);
-  }
-
-  Future<void> _moveToCurrentLocation(AppLatLong appLatLong) async {
-    final controller = await mapControllerCompleter.future;
-
-    controller.toggleUserLayer(visible: true);
-    // Move the camera to the user's current location
-    controller.moveCamera(
-      animation: const MapAnimation(type: MapAnimationType.linear, duration: 1),
-      CameraUpdate.newCameraPosition(
-        CameraPosition(
-          target: Point(latitude: appLatLong.lat, longitude: appLatLong.long),
-          zoom: 16,
-        ),
+          ),
+        ],
       ),
     );
   }

@@ -1,6 +1,7 @@
 
+import 'package:geo_sort/geo_sort.dart';
 
-class Place {
+class Place implements HasLocation {
   final String title;
   final double latitude;
   final double longitude;

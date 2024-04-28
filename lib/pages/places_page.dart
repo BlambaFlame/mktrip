@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:mktrip/list/place.dart';
 import 'package:dio/dio.dart';
+import 'package:mktrip/map/trip.dart';
+import 'package:mktrip/pages/map_page.dart';
 
 class PlacesPage extends StatefulWidget {
-  const PlacesPage({super.key});
+  const PlacesPage({Key? key});
 
   @override
   State<PlacesPage> createState() => _PlacesPageState();
@@ -11,6 +13,7 @@ class PlacesPage extends StatefulWidget {
 
 class _PlacesPageState extends State<PlacesPage> {
   List<Place> places = [];
+  List<Place> selectedPlaces = [];
   bool isButtonActive = false;
 
   @override
@@ -65,7 +68,12 @@ class _PlacesPageState extends State<PlacesPage> {
                             onChanged: (bool? value) {
                               setState(() {
                                 places[index].selected = value ?? false;
-                                isButtonActive = value ?? false;
+                                if (value ?? false) {
+                                  selectedPlaces.add(places[index]);
+                                } else {
+                                  selectedPlaces.remove(places[index]);
+                                }
+                                isButtonActive = selectedPlaces.isNotEmpty;
                               });
                             },
                           ),
@@ -94,9 +102,17 @@ class _PlacesPageState extends State<PlacesPage> {
             bottom: 0,
             right: 0,
             child: Padding(
-              padding: const EdgeInsets.all(2.0),
+              padding: const EdgeInsets.all(8.0),
               child: ElevatedButton(
-                onPressed: isButtonActive ? () {} : null,
+                onPressed: isButtonActive ? () async{
+                  final sortedLocations = await Trip().BuildTrip(selectedPlaces);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => MapPage(sortedLocations),
+                    ),
+                  );
+                } : null,
                 style: ButtonStyle(
                   shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                     RoundedRectangleBorder(
@@ -105,7 +121,6 @@ class _PlacesPageState extends State<PlacesPage> {
                   ),
                 ),
                 child: Icon(Icons.pin_drop),
-
               ),
             ),
           ),

@@ -49,7 +49,7 @@ class _MainPagesState extends State<MainPages> {
       body: <Widget>[
         const MyHomePage(),
         const PlacesPage(),
-        const MapPage(),
+         MapPage ([]),
       ][currentPageIndex],
     );
   }
