@@ -1,7 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:mktrip/pages/auth/account_page.dart';
+import 'package:mktrip/pages/auth/login_page.dart';
+import 'package:mktrip/pages/auth/reset_password_page.dart';
+import 'package:mktrip/pages/auth/services/firebase_stream.dart';
+import 'package:mktrip/pages/auth/signup_page.dart';
+import 'package:mktrip/pages/auth/verify_email_page.dart';
 import 'package:mktrip/pages/home_page.dart';
 import 'package:mktrip/pages/map_page.dart';
 import 'package:mktrip/pages/places_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:mktrip/pages/auth/account_page.dart';
+import 'package:mktrip/pages/auth/login_page.dart';
 
 class MainPages extends StatefulWidget {
   const MainPages({Key ?key});
@@ -12,6 +21,7 @@ class MainPages extends StatefulWidget {
 
 class _MainPagesState extends State<MainPages> {
   int currentPageIndex = 0;
+  final user = FirebaseAuth.instance.currentUser;
 
   @override
   Widget build(BuildContext context) {
@@ -19,6 +29,28 @@ class _MainPagesState extends State<MainPages> {
       appBar: AppBar(
         centerTitle: true,
         title: const Text('MKTrip'),
+        actions: [
+          IconButton(
+            onPressed: () {
+              if ((user == null)) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const LoginPage()),
+                );
+              } else {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const AccountPage()),
+                );
+              }
+            },
+            icon: Icon(
+              Icons.person,
+              color: (user == null) ? Colors.white : Colors.yellow,
+            ),
+          ),
+        ],
       ),
       bottomNavigationBar: NavigationBar(
         onDestinationSelected: (int index) {
@@ -50,6 +82,12 @@ class _MainPagesState extends State<MainPages> {
         const MyHomePage(),
         const PlacesPage(),
          MapPage ([]),
+        const FirebaseStream(),
+        const AccountPage(),
+        const LoginPage(),
+        const SignUpPage(),
+        const ResetPasswordPage(),
+        const VerifyEmailPage(),
       ][currentPageIndex],
     );
   }
