@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
@@ -18,7 +17,6 @@ class MapPage extends StatefulWidget {
 }
 
 class _MapPageState extends State<MapPage> {
-  late Geolocator _geolocator;
   List<LatLng> points = [];
   List<List<LatLng>> routes = [];
 
@@ -31,24 +29,19 @@ class _MapPageState extends State<MapPage> {
     var routesapi = RoutesAPI();
     String myPosition =
         '${newPosition.latitude.toString()},${newPosition.longitude.toString()}';
-    var rList = widget.selectedPlaces
-        .map((e) {
-          var target = '${e.latitude.toString()},${e.longitude.toString()}';
-          var response =
-               http.get(routesapi.getRouteUrl(myPosition, target)).then((value) {
-                 var data = jsonDecode(value.body);
-                 var listOfPoints = data['features'][0]['geometry']['coordinates'];
-                 var route = listOfPoints
-                     .map((p) => LatLng(p[1].toDouble(), p[0].toDouble()))
-                     .toList();
-                 myPosition = target;
-                 return route;
-               });
-        })
-        .cast<List<LatLng>>()
-        .toList();
 
-    print(rList);
+    List<List<LatLng>> rList =[];
+
+    for(int i =0; i<widget.selectedPlaces.length; i++){
+      var target = '${widget.selectedPlaces[i].latitude.toString()},${widget.selectedPlaces[i].longitude.toString()}';
+      var response = await http.get(routesapi.getRouteUrl(myPosition, target));
+      var data = jsonDecode(response.body);
+      var listOfPoints = data['features'][0]['geometry']['coordinates'];
+      var route = listOfPoints
+          .map((p) => LatLng(p[1].toDouble(), p[0].toDouble()))
+          .toList();
+      myPosition = target;rList.add(route);
+    }
 
     setState(() {
       routes = rList;
@@ -60,7 +53,6 @@ class _MapPageState extends State<MapPage> {
   @override
   void initState() {
     super.initState();
-    _geolocator = Geolocator();
   }
 
   @override
@@ -69,8 +61,6 @@ class _MapPageState extends State<MapPage> {
     int markerNumber = 1;
 
     for (Place place in widget.selectedPlaces) {
-      double latitude = 0.0;
-      double longitude = 0.0;
 
       markers.add(
         Marker(

@@ -9,11 +9,9 @@ import 'package:mktrip/pages/home_page.dart';
 import 'package:mktrip/pages/map_page.dart';
 import 'package:mktrip/pages/places_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:mktrip/pages/auth/account_page.dart';
-import 'package:mktrip/pages/auth/login_page.dart';
 
 class MainPages extends StatefulWidget {
-  const MainPages({Key ?key});
+  const MainPages({super.key});
 
   @override
   State<MainPages> createState() => _MainPagesState();
